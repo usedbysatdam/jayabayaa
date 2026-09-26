@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>jayabaya</title>
+    <meta name="description" content="nomad — studio." />
+    <meta
+      name="theme-color"
+      content="#000000"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta name="theme-color" content="#000000" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext x='16' y='24' font-size='28' font-family='Helvetica,Arial' text-anchor='middle' fill='%23111014'%3E*%3C/text%3E%3C/svg%3E"
+    />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="./assets/fonts/SFProDisplay-Regular.woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="./assets/fonts/VCR.woff2"
+      crossorigin
+      media="(pointer: fine)"
+    />
+    <link rel="stylesheet" href="./css/style.css" />
+    <script type="importmap">
+      { "imports": { "three": "./js/vendor/three.module.js" } }
+    </script>
+  </head>
+  <body data-stage="mark">
+    <!-- ── stage 1 · the mark ───────────────────────────────────────────── -->
+    <div class="mark" id="mark" aria-hidden="true">
+      <!-- autoplay/playsinline as ATTRIBUTES, not only as a play() call: Safari
+         evaluates its autoplay heuristics at parse time, and a JS-only start is
+         refused in cases the attribute survives. The still is the word fully
+         drawn — a device that refuses to play video shows Jayabaya on black
+         rather than a blank square. -->
+      <video
+        class="mark__v"
+        id="markVideo"
+        src="./assets/video/loading.mp4"
+        poster="./assets/video/loading-still.webp"
+        autoplay
+        muted
+        playsinline
+        webkit-playsinline
+        preload="auto"
+        disablepictureinpicture
+      ></video>
+    </div>
+
+    <!-- ── stage 2/3 · webgl (ipod, then camera) ────────────────────────── -->
+    <canvas class="gl" id="gl" aria-hidden="true"></canvas>
+
+    <!-- ── the lens vignette · rides the whole intro, lifts as the page lands ─ -->
+    <div class="vig" id="vig" aria-hidden="true"></div>
+
+    <!-- ── stage 4 · the canvas of work ─────────────────────────────────── -->
+    <main class="work" id="work" hidden>
+      <canvas class="work__cv" id="cv"></canvas>
+      <p class="work__hint" id="hint">drag to explore</p>
+    </main>
+
+    <!-- ── pages ────────────────────────────────────────────────────────── -->
+    <section class="page" id="pageAbout" hidden>
+      <div class="page__in">
+        <h1 class="page__t">about</h1>
+        <p class="page__p" id="aboutBody">
+          [ PLACEHOLDER — a short paragraph about the studio: what nomad makes,
+          who it makes it for, and how it works. Replace this text. ]
+        </p>
+        <button class="page__back" type="button" data-back>back</button>
+      </div>
+    </section>
+
+    <section class="page" id="pageContact" hidden>
+      <div class="page__in">
+        <h1 class="page__t">JAYABAYA</h1>
+        <p class="page__p">
+          [ PLACEHOLDER — one line on what to get in touch about. ]
+        </p>
+        <a class="page__cta" id="mailCta" href="mailto:hello@example.com"
+          >write to us</a
+        >
+        <button class="page__back" type="button" data-back>back</button>
+      </div>
+    </section>
+
+    <!-- ── skip / accessibility fallback ────────────────────────────────── -->
+    <button class="skip" id="skip" type="button">skip intro</button>
+
+    <audio
+      id="theme"
+      src="assets/audio/Ini Abadi.mp3"
+      loop
+      preload="auto"
+    ></audio>
+
+    <script type="module" src="./js/main.js"></script>
+  </body>
+</html>

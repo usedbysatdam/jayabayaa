@@ -1,0 +1,206 @@
+/* ══ nomad ══════════════════════════════════════════════════════════════
+   White paper, black ink, one motif (the mark's asterisk). Everything
+   centred. The only surface allowed its own visual language is the canvas
+   of work.
+   ────────────────────────────────────────────────────────────────────── */
+
+@font-face{
+  font-family:'SF Pro Display'; font-style:normal; font-weight:400;
+  font-display:swap; src:url('../assets/fonts/SFProDisplay-Regular.woff2') format('woff2');
+}
+@font-face{
+  font-family:'SF Pro Display'; font-style:normal; font-weight:500;
+  font-display:swap; src:url('../assets/fonts/SFProDisplay-Medium.woff2') format('woff2');
+}
+@font-face{
+  font-family:'SF Pro Display'; font-style:normal; font-weight:700;
+  font-display:swap; src:url('../assets/fonts/SFProDisplay-Bold.woff2') format('woff2');
+}
+@font-face{
+  font-family:'VCR OSD Mono'; font-style:normal; font-weight:400;
+  font-display:block; src:url('../assets/fonts/VCR.woff2') format('woff2');
+}
+
+:root{
+  --paper:#ffffff;         /* exactly the paper the mark video was shot on */
+  --ink:#111014;           /* tinted near-black, never #000 */
+  --ink-2:#5d5b63;
+  --hair:#e4e2e6;
+  --ease-out:cubic-bezier(.16,1,.3,1);          /* expo-out */
+  --ease-in-out:cubic-bezier(.65,0,.35,1);
+  --t-slow:1100ms;
+  --t-mid:620ms;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+
+html,body{ height:100%; }
+/* The address bar's slide is what makes 100vh wrong on a phone. Nothing here
+   scrolls, so the bar rarely moves — but dvh is the honest unit and costs
+   nothing where it is understood. */
+@supports (height:100dvh){ html,body{ height:100dvh; } }
+html{ overscroll-behavior:none; }
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  -webkit-tap-highlight-color:transparent;
+  -webkit-user-select:none; user-select:none;
+  -webkit-text-size-adjust:100%;
+  font-family:'SF Pro Display',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;
+  font-weight:400; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  overflow:hidden; overscroll-behavior:none;
+}
+body[data-stage="work"], body[data-stage="page"]{ overflow:hidden; }
+
+/* The load clip and the iPod both stand on black. Paper returns for the
+   digicam and the canvas of work — the ground tone is animated, not switched. */
+body{ transition:background-color 800ms var(--ease-in-out); }
+body[data-stage="mark"],
+body.is-dark{ background:#000000; --ink-2:#8e8c96; }
+
+/* ── the vignette ───────────────────────────────────────────────────── */
+.vig{
+  position:fixed; inset:0; z-index:50; pointer-events:none;
+  opacity:1; will-change:opacity;
+  background:radial-gradient(120% 88% at 50% 50%,
+    rgba(8,8,10,0) 30%, rgba(8,8,10,.10) 55%,
+    rgba(8,8,10,.30) 78%, rgba(8,8,10,.62) 100%);
+}
+.vig[hidden]{ display:none; }
+
+/* ── the mark ───────────────────────────────────────────────────────── */
+.mark{
+  position:fixed; inset:0; display:grid; place-items:center;
+  background:#000; z-index:40;
+  opacity:1; transition:opacity var(--t-mid) var(--ease-in-out);
+}
+.mark.is-out{ opacity:0; pointer-events:none; }
+.mark[hidden]{ display:none; }
+.mark__v{
+  width:min(100vw,100vh); height:auto; display:block;
+}
+
+/* ── webgl surface ──────────────────────────────────────────────────── */
+.gl{
+  position:fixed; inset:0; width:100%; height:100%; display:block; z-index:30;
+  opacity:0; transition:opacity var(--t-mid) var(--ease-in-out);
+  touch-action:none;
+  /* An invisible full-viewport canvas still hit-tests. Left interactive it
+     sits on top of the canvas of work and eats every drag. Only the iPod
+     act ever wants the pointer. */
+  pointer-events:none;
+}
+.gl[hidden]{ display:none; }
+.gl.is-lit{ opacity:1; }
+.gl.is-live{ pointer-events:auto; }
+.gl.is-hot{ cursor:pointer; }
+.gl.is-turning{ cursor:grabbing; }
+
+/* ── canvas of work ─────────────────────────────────────────────────── */
+.work{ position:fixed; inset:0; z-index:10; }
+.work[hidden]{ display:none; }
+.work__cv{
+  position:absolute; inset:0; width:100%; height:100%; display:block;
+  cursor:grab; touch-action:none;
+}
+.work__cv.is-drag{ cursor:grabbing; }
+.work__cv.is-hot{ cursor:pointer; }
+.work__hint{
+  position:absolute; left:50%; transform:translateX(-50%);
+  bottom:calc(clamp(18px,3.4vh,34px) + env(safe-area-inset-bottom,0px));
+  margin:0; font-size:.6875rem; font-weight:500; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--ink-2);
+  opacity:0; transition:opacity 900ms var(--ease-in-out);
+  pointer-events:none;
+}
+.work__hint.is-lit{ opacity:.75; }
+.work__hint.is-gone{ opacity:0; }
+
+/* ── pages ──────────────────────────────────────────────────────────── */
+.page{
+  position:fixed; inset:0; z-index:60; background:var(--paper);
+  display:grid; place-items:center;
+  padding:calc(clamp(28px,6vw,80px) + env(safe-area-inset-top,0px))
+          calc(clamp(28px,6vw,80px) + env(safe-area-inset-right,0px))
+          calc(clamp(28px,6vw,80px) + env(safe-area-inset-bottom,0px))
+          calc(clamp(28px,6vw,80px) + env(safe-area-inset-left,0px));
+  overflow-y:auto; -webkit-overflow-scrolling:touch;
+  opacity:0; transition:opacity var(--t-mid) var(--ease-in-out);
+}
+.page[hidden]{ display:none; }
+.page.is-lit{ opacity:1; }
+.page__in{ width:100%; max-width:34rem; text-align:center; }
+.page__t{
+  margin:0 0 1.6rem; font-size:clamp(2rem,5vw,3rem); font-weight:500;
+  letter-spacing:-.035em; line-height:1.04;
+}
+.page__p{
+  margin:0 auto; max-width:36ch; font-size:1.0625rem; line-height:1.65;
+  color:var(--ink-2);
+}
+.page__cta{
+  display:inline-block; margin-top:2.4rem; padding:.85rem 1.9rem;
+  border:1px solid var(--ink); border-radius:999px;
+  font-size:.9375rem; font-weight:500; letter-spacing:-.01em;
+  color:var(--ink); text-decoration:none; background:transparent;
+  transition:background var(--t-mid) var(--ease-out), color var(--t-mid) var(--ease-out);
+  min-height:44px;
+}
+.page__cta:focus-visible{ background:var(--ink); color:var(--paper); }
+.page__back{
+  display:block; margin:3.2rem auto 0; padding:.6rem 1rem; min-height:44px;
+  border:0; background:none; cursor:pointer; color:var(--ink-2);
+  font-family:inherit; font-size:.6875rem; font-weight:500;
+  letter-spacing:.16em; text-transform:uppercase;
+}
+.page__back:focus-visible{ color:var(--ink); }
+
+/* ── skip ───────────────────────────────────────────────────────────── */
+.skip{
+  position:fixed;
+  right:calc(clamp(14px,2.4vw,26px) + env(safe-area-inset-right,0px));
+  bottom:calc(clamp(14px,2.4vh,26px) + env(safe-area-inset-bottom,0px));
+  z-index:70; min-height:44px; padding:.55rem .9rem;
+  border:0; background:none; cursor:pointer; color:var(--ink-2);
+  font-family:inherit; font-size:.625rem; font-weight:500;
+  letter-spacing:.18em; text-transform:uppercase;
+  opacity:0; transition:opacity var(--t-mid) var(--ease-in-out);
+  pointer-events:none;
+}
+.skip.is-lit{ opacity:.6; pointer-events:auto; }
+.skip:focus-visible{ opacity:1; color:var(--ink); }
+
+:focus-visible{ outline:2px solid var(--ink); outline-offset:3px; }
+
+/* ── touch ──────────────────────────────────────────────────────────────
+   A sticky :hover is the classic phone bug — the state latches on tap and
+   stays until something else is tapped. Every hover rule lives behind a real
+   hover; :focus-visible carries the keyboard, and touch gets neither. */
+@media (hover:hover) and (pointer:fine){
+  .page__cta:hover{ background:var(--ink); color:var(--paper); }
+  .page__back:hover{ color:var(--ink); }
+  .skip:hover{ opacity:1; color:var(--ink); }
+}
+
+@media (pointer:coarse){
+  .mark__v{ width:min(100vw,100vh); }
+  /* the canvas is dragged, so nothing on it may be selected or long-pressed */
+  .work__cv{ -webkit-touch-callout:none; }
+  /* the hint has to clear the home indicator and read at arm's length */
+  .work__hint{ font-size:.75rem; letter-spacing:.14em; }
+  .skip{ font-size:.6875rem; padding:.7rem 1rem; }
+  .page__p{ font-size:1rem; line-height:1.6; }
+}
+
+/* a phone on its side has almost no height to spend */
+@media (pointer:coarse) and (orientation:landscape) and (max-height:520px){
+  .page{ padding-block:calc(18px + env(safe-area-inset-top,0px))
+                       calc(18px + env(safe-area-inset-bottom,0px)); }
+  .page__t{ margin-bottom:.9rem; font-size:clamp(1.5rem,6vh,2rem); }
+  .page__cta{ margin-top:1.4rem; }
+  .page__back{ margin-top:1.6rem; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  /* keep every state reachable, just without the travel */
+  .mark,.gl,.page,.work__hint,.skip{ transition-duration:1ms; }
+}
